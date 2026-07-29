@@ -1,667 +1,531 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import {
-  Zap,
-  Globe,
-  Phone,
-  Award,
-  Play,
-  CheckCircle2,
-  ChevronDown,
-  BarChart3,
-  FileText,
-  Image as ImageIcon,
-  Sparkles,
-  BrainCircuit,
-  Users,
-  LogIn,
-} from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Zap, Globe, Phone, Award, Play, CheckCircle2, 
+  ChevronDown, BarChart3, FileText, Image as ImageIcon, 
+  Sparkles, BrainCircuit, Users, LogIn, ArrowRight, ArrowLeft
+} from "lucide-react";
 
-// --- 1. מנוע שפות (i18n Dictionary) ---
+// --- 1. מנוע שפות מלא (i18n Dictionary) ---
 const dict = {
   he: {
-    dir: 'rtl',
-    nav_slides: 'סוגי שקופיות',
-    nav_ai: 'מחולל AI',
-    nav_kosher: 'טלפון כשר',
-    nav_smart: 'מחשב וחכם',
-    nav_faq: 'שאלות ותשובות',
-    btn_cert: 'אזור תעודות',
-    btn_join: 'הצטרף למשחק',
-    btn_create: 'צור חידון',
-    hero_badge: 'הדור הבא של החידונים • מסונכרן בזמן אמת',
-    hero_title: 'להפעיל את כולם.',
-    hero_title_highlight: 'ללא גבולות.',
-    hero_sub:
-      'מגה קליק מגשרת על הפער הטכנולוגי: משתתפי אינטרנט מתחברים מהסמארטפון, ומשתתפי טלפון כשר מתחברים בחיוג קולי. הכל מסונכרן למסך אחד מרשים בזמן אמת.',
-    sim_title: 'סימולטור מנוע חי (התנסות)',
-    sim_web_mode: 'תצוגת אינטרנט',
-    sim_phone_mode: 'תצוגת טלפון כשר (DTMF)',
-    slides_title: 'ארבעה ממדים של אינטראקציה',
-    slides_sub:
-      'מעבר חלק בין סוגי תוכן שונים משאיר את הקהל מרותק לאורך כל האירוע.',
-    slide1_title: 'זירת טריוויה',
-    slide1_desc:
-      'תחרות נושאת פרסים עם מדידת זמנים. ניקוד דינמי לפי מהירות התגובה וטבלת מובילים מתעדכנת.',
-    slide2_title: 'סקרי עומק',
-    slide2_desc:
-      'קבלת החלטות משותפת ואיסוף נתונים ללא ניקוד. התוצאות מעוצבות כדיאגרמות תלת-ממדיות בלייב.',
-    slide3_title: 'שקופיות תוכן',
-    slide3_desc:
-      'העברת מסרים, כללי משחק או טקסטים עיוניים. משתתפי הטלפון שומעים את התוכן בהקראה אוטומטית.',
-    slide4_title: 'מולטימדיה',
-    slide4_desc:
-      'שילוב תמונות, קטעי וידאו ופסקולים להעצמת החוויה החושית של המשתתפים.',
-    ai_title: 'המוח שמאחורי המשחק: AI מחולל שאלות',
-    ai_sub:
-      'אין לך זמן? הזן נושא, והמנוע שלנו ייצר עבורך חידון מלא הכולל שאלות מתוחכמות, מסיחים חכמים והסברים – בשניות.',
-    ai_input_placeholder: "הקלד נושא (למשל: 'היסטוריה של מחשבים')",
-    ai_btn: 'חולל חידון',
-    kosher_title: 'חיבור קולי מושלם: טלפון כשר',
-    kosher_sub:
-      'אף אחד לא נשאר בחוץ. טכנולוגיית Web-to-Voice הייחודית שלנו מתרגמת את המשחק לשיחת טלפון אינטראקטיבית.',
-    kosher_step1: '1. חיוג למערכת',
-    kosher_step1_desc:
-      'חיוג למספר הפרימיום שלנו והקשת קוד המשחק המוצג על המסך.',
-    kosher_step2: '2. מענה מקשים',
-    kosher_step2_desc:
-      'האזנה לשאלות והקשת התשובה הנכונה (1-4) ישירות דרך מקלדת הטלפון.',
-    kosher_step3: '3. קוד אישי',
-    kosher_step3_desc:
-      'קבלת קוד קולי בסיום המשחק להורדת תעודת השתתפות מעוצבת באתר.',
-    footer_rights: 'כל הזכויות שמורות למגה קליק ©',
+    dir: "rtl",
+    nav_slides: "ממדי תוכן",
+    nav_ai: "מנוע AI",
+    nav_kosher: "אינטגרציה קולית",
+    btn_cert: "פורטל תעודות",
+    btn_join: "התחבר למסך",
+    btn_create: "פתח משחק חדש",
+    hero_badge: "הדור החדש של מנועי הסנכרון הפעיל",
+    hero_title_1: "לשלוט בקהל.",
+    hero_title_2: "לפרוץ גבולות.",
+    hero_sub: "מגה קליק היא פלטפורמת ה-Real-Time המתקדמת בעולם. סמארטפונים באולם וטלפונים כשרים בחיוג קולי – כולם מסונכרנים למסך תלת-ממדי אחד, באפס השהיה.",
+    sim_title: "מנוע רינדור חי (Live State)",
+    sim_web: "סמארטפון",
+    sim_phone: "קו קולי (DTMF)",
+    slides_title: "ארכיטקטורת תוכן מתקדמת",
+    slides_sub: "אלגוריתם המעברים שלנו מבטיח מעורבות שיא של הקהל, עם תמיכה מלאה בהקראה קולית בזמן אמת.",
+    cards: [
+      { id: 1, icon: Zap, title: "זירת טריוויה", desc: "מנוע חישוב ניקוד דינמי מבוסס אלפיות-שנייה, כולל Leaderboard מונפש שמרטיט את הקהל." },
+      { id: 2, icon: BarChart3, title: "דאטה וסקרים", desc: "רינדור נתונים תלת-ממדי בלייב. מושלם לקבלת החלטות הנהלה וסקרים אנונימיים מיידיים." },
+      { id: 3, icon: FileText, title: "שקופיות תוכן", desc: "העברת מידע עיוני עם טקסט-לטקסט (TTS) עבור משתמשי הטלפון הכשר באופן אוטומטי." },
+      { id: 4, icon: ImageIcon, title: "מולטימדיה עשירה", desc: "הזרמת וידאו, תמונות 4K וסאונד ברמת אולפן ישירות למסך המרכזי של האירוע." }
+    ],
+    ai_title: "Neural Quiz Engine",
+    ai_sub: "שכח משעות של כתיבת שאלות. הזן טקסט חופשי, והרשת העצבית שלנו (AI) תבנה עבורך מערך שאלות קליני, כולל מסיחים פסיכולוגיים מורכבים.",
+    ai_placeholder: "פקודה: 'בנה חידון על מלחמת העולם השנייה...'",
+    ai_btn: "הפעל מנוע חישוב",
+    kosher_title: "Web-to-Voice Architecture",
+    kosher_sub: "מערכת ניתוב השיחות (IVR) המהירה בישראל. הקהל שלך לא צריך אינטרנט כדי להיות חלק ממשהו גדול.",
+    steps: [
+      { icon: Phone, title: "התחברות מאובטחת", desc: "חיוג מהיר לשרתים והזנת PIN Code המופיע על המסך המרכזי." },
+      { icon: Users, title: "הזרמת נתונים חיה", desc: "האזנה לתשתית המשחק והקשת תשובות במקלדת הטלפון בפחות מ-50ms השהיה." },
+      { icon: Award, title: "הנפקת תעודות", desc: "קבלת קוד אישי (Token) בסיום למשיכת תעודת השתתפות דיגיטלית חתומה." }
+    ],
+    footer: "כל הזכויות שמורות למערכת MegaClick ©"
   },
   en: {
-    dir: 'ltr',
-    nav_slides: 'Slide Types',
-    nav_ai: 'AI Generator',
-    nav_kosher: 'Kosher Phone',
-    nav_smart: 'Smart Devices',
-    nav_faq: 'FAQ',
-    btn_cert: 'Certificates',
-    btn_join: 'Join Game',
-    btn_create: 'Create Quiz',
-    hero_badge: 'Next-Gen Polling • Real-Time Sync',
-    hero_title: 'Engage Everyone.',
-    hero_title_highlight: 'Without Limits.',
-    hero_sub:
-      'MegaClick bridges the gap: Web users connect via smartphone, while Kosher phone users connect via voice call. Everything syncs to one stunning live display.',
-    sim_title: 'Live Engine Simulator',
-    sim_web_mode: 'Web View',
-    sim_phone_mode: 'Kosher Phone (DTMF) View',
-    slides_title: 'Four Dimensions of Interaction',
-    slides_sub:
-      'Seamlessly transition between content types to keep your audience engaged.',
-    slide1_title: 'Trivia Arena',
-    slide1_desc:
-      'Timed competitions with dynamic scoring based on response speed and live leaderboards.',
-    slide2_title: 'Deep Polls',
-    slide2_desc:
-      'Gather opinions and data without scoring. Results are rendered as stunning live charts.',
-    slide3_title: 'Content Slides',
-    slide3_desc:
-      'Share rules or reading materials. Phone participants receive automated voice dictation.',
-    slide4_title: 'Multimedia',
-    slide4_desc:
-      'Integrate high-res images, video, and audio tracks to elevate the sensory experience.',
-    ai_title: 'The Brain: AI Question Generator',
-    ai_sub:
-      'No time? Enter a topic, and our engine generates a complete quiz with smart distractors and explanations in seconds.',
-    ai_input_placeholder: "Enter topic (e.g., 'History of Computers')",
-    ai_btn: 'Generate Quiz',
-    kosher_title: 'Flawless Voice Integration',
-    kosher_sub:
-      'No one is left behind. Our unique Web-to-Voice tech translates the game into an interactive phone call.',
-    kosher_step1: '1. Dial In',
-    kosher_step1_desc:
-      'Call our premium number and enter the game pin shown on the screen.',
-    kosher_step2: '2. Keypad Response',
-    kosher_step2_desc:
-      'Listen to questions and press the correct answer (1-4) on your phone keypad.',
-    kosher_step3: '3. Personal Code',
-    kosher_step3_desc:
-      'Receive a voice code at the end to download your custom certificate online.',
-    footer_rights: 'All rights reserved to MegaClick ©',
-  },
+    dir: "ltr",
+    nav_slides: "Dimensions",
+    nav_ai: "AI Engine",
+    nav_kosher: "Voice Integration",
+    btn_cert: "Certificates Portal",
+    btn_join: "Join Screen",
+    btn_create: "Initialize Game",
+    hero_badge: "Next-Gen Active Sync Engine",
+    hero_title_1: "Command The Audience.",
+    hero_title_2: "Break Boundaries.",
+    hero_sub: "MegaClick is the world's most advanced Real-Time platform. Smartphones in the hall and Kosher phones via voice call – all synced to one 3D screen, zero latency.",
+    sim_title: "Live Render Engine (State)",
+    sim_web: "Smartphone",
+    sim_phone: "Voice Line (DTMF)",
+    slides_title: "Advanced Content Architecture",
+    slides_sub: "Our transition algorithm guarantees peak audience engagement, with full real-time text-to-speech support.",
+    cards: [
+      { id: 1, icon: Zap, title: "Trivia Arena", desc: "Millisecond-based dynamic scoring engine, featuring an animated Leaderboard that thrills the crowd." },
+      { id: 2, icon: BarChart3, title: "Data & Polling", desc: "Live 3D data rendering. Perfect for management decisions and instant anonymous polls." },
+      { id: 3, icon: FileText, title: "Content Slides", desc: "Deliver theoretical info with automatic Text-to-Speech (TTS) for Kosher phone users." },
+      { id: 4, icon: ImageIcon, title: "Rich Multimedia", desc: "Stream video, 4K images, and studio-quality sound directly to the main event screen." }
+    ],
+    ai_title: "Neural Quiz Engine",
+    ai_sub: "Forget hours of writing. Enter a prompt, and our neural network generates a clinical quiz structure with complex psychological distractors.",
+    ai_placeholder: "Prompt: 'Generate a quiz about WW2...'",
+    ai_btn: "Initialize Engine",
+    kosher_title: "Web-to-Voice Architecture",
+    kosher_sub: "The fastest IVR routing system available. Your audience doesn't need the internet to be part of something huge.",
+    steps: [
+      { icon: Phone, title: "Secure Handshake", desc: "Fast dial-in to servers and entering the PIN Code shown on the main screen." },
+      { icon: Users, title: "Live Data Stream", desc: "Listening to game infrastructure and pressing answers on the keypad with <50ms latency." },
+      { icon: Award, title: "Certificate Issuance", desc: "Receive a personal Token at the end to pull a digitally signed participation certificate." }
+    ],
+    footer: "All rights reserved to MegaClick Systems ©"
+  }
 };
 
-export default function MegaClickLanding() {
-  // --- States ---
-  const [lang, setLang] = useState<'he' | 'en'>('he');
+// --- Animations Settings (Framer Motion) ---
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+};
+
+export default function MegaClickPro() {
+  const [lang, setLang] = useState<"he" | "en">("he");
   const t = dict[lang];
 
-  // Simulator State
-  const [simMode, setSimMode] = useState<'web' | 'phone'>('web');
-  const [simTimer, setSimTimer] = useState(15);
-  const [simFeedback, setSimFeedback] = useState<{
-    show: boolean;
-    correct: boolean;
-    text: string;
-  }>({ show: false, correct: false, text: '' });
-
-  // AI State
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiResult, setAiResult] = useState<null | any>(null);
-
-  // --- Effects ---
+  // Force direction on mount/change
   useEffect(() => {
-    // Simulator Timer Logic
+    document.documentElement.dir = t.dir;
+    document.documentElement.lang = lang;
+  }, [lang, t.dir]);
+
+  // --- Simulator State ---
+  const [simMode, setSimMode] = useState<"web" | "phone">("web");
+  const [simTimer, setSimTimer] = useState(15);
+  const [simFeedback, setSimFeedback] = useState<{show: boolean, correct: boolean, text: string}>({show: false, correct: false, text: ""});
+
+  useEffect(() => {
     if (simTimer > 0 && !simFeedback.show) {
       const timerId = setTimeout(() => setSimTimer(simTimer - 1), 1000);
       return () => clearTimeout(timerId);
-    } else if (simTimer === 0 && !simFeedback.show) {
-      setSimFeedback({
-        show: true,
-        correct: false,
-        text: lang === 'he' ? 'הזמן נגמר!' : "Time's up!",
-      });
     }
-  }, [simTimer, simFeedback.show, lang]);
+  }, [simTimer, simFeedback.show]);
 
-  // --- Handlers ---
   const handleSimAnswer = (isCorrect: boolean) => {
-    if (isCorrect) {
-      setSimFeedback({
-        show: true,
-        correct: true,
-        text:
-          lang === 'he' ? 'תשובה נכונה! +954 נקודות' : 'Correct! +954 points',
-      });
-    } else {
-      setSimFeedback({
-        show: true,
-        correct: false,
-        text: lang === 'he' ? 'תשובה שגויה.' : 'Incorrect.',
-      });
-    }
+    setSimFeedback({ 
+      show: true, 
+      correct: isCorrect, 
+      text: isCorrect ? (lang === "he" ? "תשובה נכונה! +954 PTS" : "Correct! +954 PTS") : (lang === "he" ? "שגוי." : "Incorrect.") 
+    });
   };
 
-  const resetSim = () => {
-    setSimTimer(15);
-    setSimFeedback({ show: false, correct: false, text: '' });
-  };
+  // --- AI Engine State ---
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiState, setAiState] = useState<"idle" | "thinking" | "typing" | "done">("idle");
+  const [aiTextObj, setAiTextObj] = useState<{q: string, a: string[]}>({q: "", a: []});
+  const [typedQ, setTypedQ] = useState("");
 
-  const handleAIGenerate = () => {
-    if (!aiPrompt.trim()) return;
-    setIsAiLoading(true);
-    setAiResult(null);
-
-    // Fake API Call Delay
+  const runAI = () => {
+    if (!aiPrompt) return;
+    setAiState("thinking");
+    setTypedQ("");
+    
+    // Fake API Latency
     setTimeout(() => {
-      setIsAiLoading(false);
-      setAiResult({
-        q:
-          lang === 'he'
-            ? `שאלה בנושא: ${aiPrompt}`
-            : `Question regarding: ${aiPrompt}`,
-        options: [
-          lang === 'he' ? "אפשרות הגיונית א'" : 'Logical Option A',
-          lang === 'he'
-            ? 'תשובה נכונה שנוצרה ע"י AI'
-            : 'AI Generated Correct Answer',
-          lang === 'he'
-            ? 'מסיח מתוחכם במיוחד'
-            : 'Highly Sophisticated Distractor',
-          lang === 'he' ? 'אפשרות שגויה לחלוטין' : 'Completely Wrong Option',
-        ],
+      const generatedQ = lang === "he" 
+        ? `שאלת רשת עצבית מבוססת על: "${aiPrompt}". מהו הנתון המדויק ביותר?`
+        : `Neural network query based on: "${aiPrompt}". What is the most accurate data?`;
+      
+      setAiTextObj({
+        q: generatedQ,
+        a: lang === "he" 
+          ? ["מסיח סטטיסטי", "התשובה הנכונה (ממוחשב)", "שגיאה לוגית", "נתון לא רלוונטי"]
+          : ["Statistical Distractor", "Correct Answer (Computed)", "Logical Fallacy", "Irrelevant Data"]
       });
-    }, 1800);
+      setAiState("typing");
+    }, 2000);
   };
+
+  // Typewriter effect for AI
+  useEffect(() => {
+    if (aiState === "typing") {
+      let i = 0;
+      const interval = setInterval(() => {
+        setTypedQ(aiTextObj.q.slice(0, i + 1));
+        i++;
+        if (i >= aiTextObj.q.length) {
+          clearInterval(interval);
+          setAiState("done");
+        }
+      }, 40); // Type speed
+      return () => clearInterval(interval);
+    }
+  }, [aiState, aiTextObj]);
 
   return (
-    <div
-      className={`min-h-screen bg-[#050511] text-slate-100 font-sans selection:bg-pink-500/30 ${
-        t.dir === 'rtl' ? 'text-right' : 'text-left'
-      }`}
-      dir={t.dir}
-    >
-      {/* 1. Header Navigation (Glassmorphism) */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a1a]/70 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <div className="flex items-center gap-3 shrink-0 cursor-pointer">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 via-pink-500 to-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(236,72,153,0.3)]">
+    <div className={`relative min-h-screen font-sans overflow-hidden ${t.dir === "rtl" ? "text-right" : "text-left"}`}>
+      
+      {/* Dynamic Background Effects */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600/30 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
+        <div className="absolute top-[20%] right-[-10%] w-96 h-96 bg-cyan-600/30 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-pink-600/30 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000"></div>
+        {/* Cyberpunk Grid */}
+        <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
+      </div>
+
+      {/* --- Header Navigation --- */}
+      <motion.header 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5"
+      >
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3 cursor-pointer group">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-[0_0_20px_rgba(236,72,153,0.4)] group-hover:scale-110 transition-transform duration-300">
               <Zap className="text-white w-6 h-6 fill-white" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
-                MegaClick
-              </span>
-              <span className="text-[10px] text-slate-400 tracking-[0.2em] uppercase -mt-1 font-bold">
-                Pro Edition
-              </span>
+            <div>
+              <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 uppercase">
+                MegaClick<span className="text-pink-500">.</span>
+              </h1>
+              <p className="text-[9px] text-pink-400 tracking-[0.3em] font-mono uppercase -mt-1 font-bold">Enterprise</p>
             </div>
           </div>
 
-          {/* Center Links (Desktop) */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <a href="#slides" className="hover:text-white transition-colors">
-              {t.nav_slides}
-            </a>
-            <a href="#ai" className="hover:text-white transition-colors">
-              {t.nav_ai}
-            </a>
-            <a href="#kosher" className="hover:text-white transition-colors">
-              {t.nav_kosher}
-            </a>
+          <nav className="hidden lg:flex items-center gap-10 text-sm font-semibold text-slate-300">
+            <a href="#slides" className="hover:text-pink-400 transition-colors">{t.nav_slides}</a>
+            <a href="#ai" className="hover:text-cyan-400 transition-colors">{t.nav_ai}</a>
+            <a href="#kosher" className="hover:text-purple-400 transition-colors">{t.nav_kosher}</a>
           </nav>
 
-          {/* Action Buttons & Language */}
-          <div className="flex items-center gap-3 shrink-0">
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value as 'he' | 'en')}
-              className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-pink-500 cursor-pointer hover:bg-white/10 transition"
-            >
-              <option value="he" className="bg-[#0a0a1a]">
-                🇮🇱 עברית
-              </option>
-              <option value="en" className="bg-[#0a0a1a]">
-                🇺🇸 English
-              </option>
-            </select>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Globe className="absolute top-1/2 -translate-y-1/2 right-2 w-3 h-3 text-slate-400 pointer-events-none" />
+              <select 
+                value={lang} 
+                onChange={(e) => setLang(e.target.value as "he" | "en")}
+                className="appearance-none bg-white/5 border border-white/10 rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-pink-500 cursor-pointer"
+                style={{ direction: 'ltr' }} // keep select text LTR for flags
+              >
+                <option value="he" className="bg-[#03030a]">HE</option>
+                <option value="en" className="bg-[#03030a]">EN</option>
+              </select>
+            </div>
 
-            {/* Note: The Certificate page will be a separate route in the real app, here it just acts as a link */}
-            <button className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 border border-yellow-500/20 text-yellow-500 text-xs font-bold hover:bg-yellow-500/10 transition">
-              <Award className="w-4 h-4" />
-              {t.btn_cert}
+            <button className="hidden md:flex items-center gap-1.5 px-4 py-1.5 rounded-lg border border-yellow-500/30 text-yellow-500 text-xs font-bold hover:bg-yellow-500/10 transition-all">
+              <Award className="w-4 h-4" /> {t.btn_cert}
             </button>
 
-            <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm px-6 py-2 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)] hover:shadow-[0_0_25px_rgba(236,72,153,0.6)] transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
-              <LogIn className="w-4 h-4" />
-              {t.btn_create}
+            <button className="relative group overflow-hidden rounded-xl p-[1px]">
+              <span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300"></span>
+              <div className="relative bg-[#03030a] px-6 py-2 rounded-xl flex items-center gap-2 group-hover:bg-opacity-0 transition-all duration-300">
+                <span className="text-sm font-bold text-white">{t.btn_create}</span>
+                <LogIn className="w-4 h-4 text-white" />
+              </div>
             </button>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* 2. Hero Section & Live Simulator */}
-      <section className="relative pt-36 pb-24 px-4 overflow-hidden">
-        {/* Abstract Background Elements */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/20 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-600/10 blur-[100px] rounded-full pointer-events-none"></div>
-
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16 relative z-10">
-          {/* Text Content */}
-          <div className="lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-start">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-cyan-300 text-xs font-bold mb-6">
+      {/* --- Hero Section & Simulator --- */}
+      <section className="relative pt-40 pb-20 px-6 max-w-7xl mx-auto min-h-screen flex flex-col justify-center">
+        <div className="flex flex-col lg:flex-row items-center gap-16 z-10">
+          
+          {/* Text Left */}
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="lg:w-1/2 flex flex-col items-start"
+          >
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold mb-6 backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
               {t.hero_badge}
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-6">
-              {t.hero_title} <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500">
-                {t.hero_title_highlight}
+            </motion.div>
+            
+            <motion.h2 variants={fadeUp} className="text-6xl sm:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-6">
+              {t.hero_title_1} <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 text-glow">
+                {t.hero_title_2}
               </span>
-            </h1>
-
-            <p className="text-slate-400 text-lg sm:text-xl leading-relaxed mb-8 max-w-xl">
+            </motion.h2>
+            
+            <motion.p variants={fadeUp} className="text-slate-400 text-lg sm:text-xl leading-relaxed mb-10 max-w-lg font-light">
               {t.hero_sub}
-            </p>
-
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-              <button className="flex-1 sm:flex-none bg-white text-[#050511] font-black px-8 py-4 rounded-2xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
+            </motion.p>
+            
+            <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4 w-full">
+              <button className="bg-white text-black font-black px-8 py-4 rounded-2xl hover:scale-105 transition-transform duration-300 flex items-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
                 <Play className="w-5 h-5 fill-current" />
                 {t.btn_join}
               </button>
-              <button className="flex-1 sm:flex-none bg-white/5 border border-white/10 text-white font-bold px-8 py-4 rounded-2xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
-                <Phone className="w-5 h-5 text-green-400" />
+              <button className="glass-panel text-white font-bold px-8 py-4 rounded-2xl hover:bg-white/10 transition-colors flex items-center gap-2">
+                <Phone className="w-5 h-5 text-purple-400" />
                 {t.nav_kosher}
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* Live Engine Simulator Component */}
-          <div className="lg:w-1/2 w-full max-w-md mx-auto">
-            <div className="bg-[#0a0a1a]/80 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(168,85,247,0.15)] relative group">
-              {/* Sim Header */}
-              <div className="bg-white/5 p-4 flex justify-between items-center border-b border-white/5">
-                <span className="text-xs font-bold tracking-widest text-slate-400 uppercase flex items-center gap-2">
-                  <BrainCircuit className="w-4 h-4 text-purple-400" />
-                  {t.sim_title}
-                </span>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => setSimMode('web')}
-                    className={`px-3 py-1 rounded-md text-[10px] font-bold transition-colors flex items-center gap-1 ${
-                      simMode === 'web'
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    <Globe className="w-3 h-3" /> {t.sim_web_mode}
+          {/* 3D Glass Simulator Right */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8, rotateY: 15 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            transition={{ duration: 1, type: "spring" }}
+            className="lg:w-1/2 w-full max-w-lg perspective-1000"
+          >
+            <div className="glass-panel rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform-gpu hover:rotate-y-[-5deg] transition-transform duration-500">
+              
+              {/* Simulator Header */}
+              <div className="bg-black/40 p-4 border-b border-white/5 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{t.sim_title}</span>
+                </div>
+                <div className="flex bg-black/50 rounded-lg p-1 border border-white/5">
+                  <button onClick={() => setSimMode('web')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${simMode === 'web' ? 'bg-white/10 text-white' : 'text-slate-500'}`}>
+                    {t.sim_web}
                   </button>
-                  <button
-                    onClick={() => setSimMode('phone')}
-                    className={`px-3 py-1 rounded-md text-[10px] font-bold transition-colors flex items-center gap-1 ${
-                      simMode === 'phone'
-                        ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    <Phone className="w-3 h-3" /> {t.sim_phone_mode}
+                  <button onClick={() => setSimMode('phone')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${simMode === 'phone' ? 'bg-white/10 text-white' : 'text-slate-500'}`}>
+                    {t.sim_phone}
                   </button>
                 </div>
               </div>
 
-              {/* Sim Body */}
-              <div className="p-6 relative min-h-[320px] flex flex-col justify-center">
-                {!simFeedback.show ? (
-                  <>
-                    <div className="flex justify-between items-center mb-6">
-                      <span className="text-xs font-bold text-pink-400 bg-pink-400/10 px-2 py-1 rounded-md">
-                        Q. 1/10
-                      </span>
-                      <div className="w-10 h-10 rounded-full border-2 border-slate-700 flex items-center justify-center text-sm font-mono font-bold text-white relative">
-                        <svg className="absolute inset-0 w-full h-full -rotate-90">
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="18"
-                            fill="none"
-                            stroke="#ec4899"
-                            strokeWidth="2"
-                            strokeDasharray="113"
-                            strokeDashoffset={113 - (113 * simTimer) / 15}
-                            className="transition-all duration-1000 ease-linear"
-                          />
-                        </svg>
-                        {simTimer}
+              {/* Simulator Body */}
+              <div className="p-8 relative min-h-[380px] flex flex-col justify-center bg-gradient-to-b from-transparent to-black/20">
+                <AnimatePresence mode="wait">
+                  {!simFeedback.show ? (
+                    <motion.div key="question" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                      <div className="flex justify-between items-end mb-8">
+                        <div className="w-14 h-14 rounded-full border-4 border-pink-500/30 flex items-center justify-center relative">
+                          <svg className="absolute inset-0 w-full h-full -rotate-90">
+                            <circle cx="24" cy="24" r="24" fill="none" stroke="#ec4899" strokeWidth="4" strokeDasharray="150" strokeDashoffset={150 - (150 * simTimer) / 15} className="transition-all duration-1000 ease-linear"/>
+                          </svg>
+                          <span className="text-lg font-black font-mono">{simTimer}</span>
+                        </div>
                       </div>
-                    </div>
+                      
+                      <h3 className="text-2xl font-black mb-8 leading-tight">
+                        {lang === "he" ? "באיזו מהירות נשלחים נתונים מהטלפון הכשר לשרתי מגה קליק?" : "How fast is data sent from the Kosher phone to MegaClick servers?"}
+                      </h3>
 
-                    <h3 className="text-xl font-bold mb-6 text-white leading-tight">
-                      {lang === 'he'
-                        ? 'מהי המהירות הממוצעת בה פועל מנוע הסנכרון של מערכת מגה קליק?'
-                        : 'What is the average speed of the MegaClick sync engine?'}
-                    </h3>
-
-                    <div className="space-y-3">
-                      {[1, 2, 3, 4].map((num) => (
-                        <button
-                          key={num}
-                          onClick={() => handleSimAnswer(num === 2)}
-                          className={`w-full text-start p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all flex justify-between items-center group`}
-                        >
-                          <span className="font-semibold text-slate-200">
-                            {lang === 'he'
-                              ? num === 1
-                                ? '1. כ-3 שניות'
-                                : num === 2
-                                ? '2. פחות מ-50 מילישניות (זמן אמת)'
-                                : num === 3
-                                ? '3. חצי דקה'
-                                : '4. דקה שלמה'
-                              : num === 1
-                              ? '1. About 3 seconds'
-                              : num === 2
-                              ? '2. Under 50ms (Real-Time)'
-                              : num === 3
-                              ? '3. Half a minute'
-                              : '4. One full minute'}
-                          </span>
-                          {/* Phone Hint (Only in Phone Mode) */}
-                          <div
-                            className={`transition-opacity duration-300 ${
-                              simMode === 'phone' ? 'opacity-100' : 'opacity-0'
-                            } bg-slate-900 text-slate-400 text-[10px] px-2 py-1 rounded border border-slate-700`}
-                          >
-                            {lang === 'he' ? `הקש ${num}` : `Press ${num}`} 📞
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  /* Feedback View */
-                  <div className="text-center flex flex-col items-center justify-center space-y-4 animate-in zoom-in duration-300">
-                    <div
-                      className={`w-20 h-20 rounded-full flex items-center justify-center ${
-                        simFeedback.correct
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
-                      }`}
-                    >
-                      {simFeedback.correct ? (
-                        <CheckCircle2 className="w-10 h-10" />
-                      ) : (
-                        <ChevronDown className="w-10 h-10" />
-                      )}
-                    </div>
-                    <h2 className="text-2xl font-bold">{simFeedback.text}</h2>
-                    <button
-                      onClick={resetSim}
-                      className="text-sm text-slate-400 hover:text-white underline underline-offset-4 mt-4"
-                    >
-                      {lang === 'he' ? 'נסה שוב לחוויה מחודשת' : 'Try again'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. 4 Slide Types Section */}
-      <section
-        id="slides"
-        className="py-24 bg-[#0a0a1a] relative border-y border-white/5"
-      >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16 max-w-2xl mx-auto">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-6">
-              {t.slides_title}
-            </h2>
-            <p className="text-slate-400 text-lg">{t.slides_sub}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Slide 1 */}
-            <div className="bg-white/[0.02] border border-white/5 p-8 rounded-3xl hover:bg-white/[0.04] hover:border-pink-500/30 transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-pink-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Zap className="w-7 h-7 text-pink-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">{t.slide1_title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                {t.slide1_desc}
-              </p>
-            </div>
-
-            {/* Slide 2 */}
-            <div className="bg-white/[0.02] border border-white/5 p-8 rounded-3xl hover:bg-white/[0.04] hover:border-cyan-500/30 transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <BarChart3 className="w-7 h-7 text-cyan-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">{t.slide2_title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                {t.slide2_desc}
-              </p>
-            </div>
-
-            {/* Slide 3 */}
-            <div className="bg-white/[0.02] border border-white/5 p-8 rounded-3xl hover:bg-white/[0.04] hover:border-purple-500/30 transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <FileText className="w-7 h-7 text-purple-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">{t.slide3_title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                {t.slide3_desc}
-              </p>
-            </div>
-
-            {/* Slide 4 */}
-            <div className="bg-white/[0.02] border border-white/5 p-8 rounded-3xl hover:bg-white/[0.04] hover:border-yellow-500/30 transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <ImageIcon className="w-7 h-7 text-yellow-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">{t.slide4_title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                {t.slide4_desc}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. AI Generator Section */}
-      <section id="ai" className="py-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none"></div>
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="bg-gradient-to-br from-[#0f0f2a] to-[#0a0a1a] border border-purple-500/20 rounded-[2.5rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 shadow-[0_0_50px_rgba(168,85,247,0.1)] relative z-10">
-            <div className="md:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold mb-6">
-                <Sparkles className="w-3 h-3" />
-                MegaClick AI Engine
-              </div>
-              <h2 className="text-3xl md:text-5xl font-black leading-tight mb-6">
-                {t.ai_title}
-              </h2>
-              <p className="text-slate-400 text-lg leading-relaxed mb-8">
-                {t.ai_sub}
-              </p>
-            </div>
-
-            {/* Interactive AI Demo */}
-            <div className="md:w-1/2 w-full">
-              <div className="bg-[#050511]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-                <div className="flex gap-3 mb-6">
-                  <input
-                    type="text"
-                    placeholder={t.ai_input_placeholder}
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:bg-white/10 transition text-white placeholder-slate-500"
-                  />
-                  <button
-                    onClick={handleAIGenerate}
-                    disabled={isAiLoading || !aiPrompt.trim()}
-                    className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-3 rounded-xl transition flex items-center justify-center disabled:opacity-50"
-                  >
-                    {isAiLoading ? (
-                      <Sparkles className="w-5 h-5 animate-spin" />
-                    ) : (
-                      t.ai_btn
-                    )}
-                  </button>
-                </div>
-
-                {/* AI Output Area */}
-                <div className="bg-black/30 border border-white/5 rounded-xl min-h-[160px] p-4 flex flex-col justify-center">
-                  {!isAiLoading && !aiResult && (
-                    <p className="text-center text-slate-600 text-sm">
-                      {lang === 'he'
-                        ? 'הכנס נושא ולחץ על הכפתור כדי לראות את הקסם...'
-                        : 'Enter a topic and press the button to see magic...'}
-                    </p>
-                  )}
-                  {isAiLoading && (
-                    <div className="text-center space-y-3">
-                      <div className="flex justify-center space-x-1 space-x-reverse">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-                      </div>
-                      <p className="text-xs text-purple-400 font-mono uppercase tracking-widest">
-                        {lang === 'he'
-                          ? 'מנתח נתונים ומחבר שאלות...'
-                          : 'Analyzing data...'}
-                      </p>
-                    </div>
-                  )}
-                  {aiResult && (
-                    <div className="animate-in fade-in duration-500">
-                      <p className="font-bold text-white mb-4 text-sm bg-purple-500/10 inline-block px-2 py-1 rounded border border-purple-500/20">
-                        {aiResult.q}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
-                        {aiResult.options.map((opt: string, i: number) => (
-                          <div
+                      <div className="grid grid-cols-1 gap-3">
+                        {[
+                          lang === "he" ? "1. כ-3 שניות" : "1. About 3 seconds",
+                          lang === "he" ? "2. פחות מ-50 מילישניות" : "2. Under 50 milliseconds",
+                          lang === "he" ? "3. חצי דקה" : "3. Half a minute"
+                        ].map((text, i) => (
+                          <button 
                             key={i}
-                            className={`p-2 rounded-lg border ${
-                              i === 1
-                                ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                                : 'bg-white/5 border-white/5 text-slate-300'
-                            }`}
+                            onClick={() => handleSimAnswer(i === 1)}
+                            className="group relative w-full text-start p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-pink-500/20 hover:border-pink-500/50 transition-all overflow-hidden"
                           >
-                            {i + 1}. {opt} {i === 1 && '✓'}
-                          </div>
+                            <span className="relative z-10 font-bold text-sm md:text-base">{text}</span>
+                            {/* DTMF Hint for phone mode */}
+                            {simMode === 'phone' && (
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-mono text-purple-400 bg-purple-500/10 px-2 py-1 rounded border border-purple-500/20">
+                                DTMF: [{i + 1}]
+                              </span>
+                            )}
+                          </button>
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div key="feedback" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center flex flex-col items-center">
+                      <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-[0_0_50px_currentColor] ${simFeedback.correct ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {simFeedback.correct ? <CheckCircle2 className="w-12 h-12" /> : <ChevronDown className="w-12 h-12" />}
+                      </div>
+                      <h2 className="text-3xl font-black mb-4">{simFeedback.text}</h2>
+                      <button onClick={() => { setSimTimer(15); setSimFeedback({show: false, correct: false, text: ""}) }} className="text-sm font-bold text-slate-400 hover:text-white underline decoration-dashed underline-offset-4">
+                        {lang === "he" ? "רענן מנוע" : "Reset Engine"}
+                      </button>
+                    </motion.div>
                   )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* --- 4 Dimensions Section --- */}
+      <section id="slides" className="py-32 relative border-t border-white/5 bg-black/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div 
+            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+            className="text-center mb-20 max-w-3xl mx-auto"
+          >
+            <h2 className="text-4xl md:text-5xl font-black mb-6">{t.slides_title}</h2>
+            <p className="text-slate-400 text-lg">{t.slides_sub}</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {t.cards.map((card, i) => (
+              <motion.div 
+                key={card.id}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ y: -10 }}
+                className="glass-panel p-8 rounded-3xl group cursor-crosshair relative overflow-hidden"
+              >
+                {/* Hover Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-purple-500/0 group-hover:from-pink-500/10 group-hover:to-purple-500/10 transition-colors duration-500"></div>
+                
+                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 relative z-10 border border-white/10 group-hover:border-pink-500/50 transition-colors">
+                  <card.icon className="w-7 h-7 text-white group-hover:text-pink-400 transition-colors" />
                 </div>
-              </div>
+                <h3 className="text-xl font-bold mb-4 relative z-10">{card.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed relative z-10">{card.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- AI Engine Section --- */}
+      <section id="ai" className="py-32 relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="glass-panel rounded-[3rem] p-8 md:p-16 border border-purple-500/20 relative overflow-hidden shadow-[0_0_100px_rgba(139,92,246,0.1)]">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+
+            <div className="flex flex-col lg:flex-row items-center gap-16 relative z-10">
+              <motion.div 
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}
+                className="lg:w-1/2"
+              >
+                <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold mb-6">
+                  <Sparkles className="w-4 h-4" /> GPT-4 Integration
+                </motion.div>
+                <motion.h2 variants={fadeUp} className="text-4xl md:text-6xl font-black mb-6 leading-tight">{t.ai_title}</motion.h2>
+                <motion.p variants={fadeUp} className="text-slate-400 text-lg mb-8 leading-relaxed">{t.ai_sub}</motion.p>
+              </motion.div>
+
+              {/* AI Interactive Panel */}
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                className="lg:w-1/2 w-full"
+              >
+                <div className="bg-[#03030a]/80 p-6 rounded-3xl border border-white/10 shadow-2xl">
+                  <div className="flex gap-3 mb-6">
+                    <input 
+                      type="text" 
+                      placeholder={t.ai_placeholder}
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-sm font-medium focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-white"
+                    />
+                    <button 
+                      onClick={runAI}
+                      disabled={aiState === "thinking" || aiState === "typing" || !aiPrompt}
+                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
+                    >
+                      {aiState === "thinking" ? <BrainCircuit className="w-5 h-5 animate-spin" /> : t.ai_btn}
+                    </button>
+                  </div>
+
+                  {/* AI Output Box */}
+                  <div className="bg-black/50 rounded-2xl p-6 min-h-[220px] border border-white/5 relative overflow-hidden font-mono text-sm">
+                    {aiState === "idle" && (
+                      <div className="absolute inset-0 flex items-center justify-center text-slate-600">
+                        {lang === "he" ? "ממתין להזנת נתונים..." : "Waiting for input..."}
+                      </div>
+                    )}
+                    
+                    {aiState === "thinking" && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
+                        <div className="flex space-x-2 space-x-reverse">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                        <span className="text-purple-400 text-xs uppercase tracking-widest">{lang === "he" ? "מנתח מודלים פסיכולוגיים..." : "Analyzing models..."}</span>
+                      </div>
+                    )}
+
+                    {(aiState === "typing" || aiState === "done") && (
+                      <div className="space-y-6">
+                        <div className="text-cyan-300 font-bold leading-relaxed border-l-2 border-cyan-500 pl-4 (rtl:pr-4 rtl:pl-0 rtl:border-r-2 rtl:border-l-0)">
+                          {typedQ}
+                          {aiState === "typing" && <span className="inline-block w-2 h-4 bg-cyan-400 ml-1 animate-pulse"></span>}
+                        </div>
+                        
+                        {aiState === "done" && (
+                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-3">
+                            {aiTextObj.a.map((ans, idx) => (
+                              <div key={idx} className={`p-3 rounded-lg border ${idx === 1 ? 'bg-green-900/30 border-green-500/50 text-green-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+                                {idx + 1}. {ans} {idx === 1 && "✓"}
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Kosher Phone IVR Section */}
-      <section
-        id="kosher"
-        className="py-24 bg-[#0a0a1a] border-t border-white/5"
-      >
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-black mb-6">
-            {t.kosher_title}
-          </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-16">
-            {t.kosher_sub}
-          </p>
+      {/* --- Kosher Phone Architecture --- */}
+      <section id="kosher" className="py-32 bg-gradient-to-b from-transparent to-black">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-24">
+            <h2 className="text-4xl md:text-5xl font-black mb-6">{t.kosher_title}</h2>
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto">{t.kosher_sub}</p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 relative">
-                <Phone className="w-8 h-8 text-white" />
-                <div className="absolute inset-0 rounded-full border border-slate-500 animate-ping opacity-20"></div>
-              </div>
-              <h3 className="text-xl font-bold mb-3">{t.kosher_step1}</h3>
-              <p className="text-slate-400 text-sm max-w-[250px] leading-relaxed">
-                {t.kosher_step1_desc}
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            {/* Connecting Line (Desktop) */}
+            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
 
-            <div className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 relative">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">{t.kosher_step2}</h3>
-              <p className="text-slate-400 text-sm max-w-[250px] leading-relaxed">
-                {t.kosher_step2_desc}
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 relative">
-                <Award className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">{t.kosher_step3}</h3>
-              <p className="text-slate-400 text-sm max-w-[250px] leading-relaxed">
-                {t.kosher_step3_desc}
-              </p>
-            </div>
+            {t.steps.map((step, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.2 }}
+                className="flex flex-col items-center text-center relative z-10"
+              >
+                <div className="w-24 h-24 rounded-3xl bg-[#03030a] border border-purple-500/30 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(139,92,246,0.15)] relative group">
+                  <div className="absolute inset-0 rounded-3xl bg-purple-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <step.icon className="w-10 h-10 text-purple-400" />
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-pink-500 text-white flex items-center justify-center text-sm font-black border-4 border-[#03030a]">
+                    {idx + 1}
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+                <p className="text-slate-400 leading-relaxed max-w-xs">{step.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#050511] py-8">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
-            <Zap className="w-4 h-4 text-slate-400" />
-            <span className="font-bold uppercase tracking-wider">
-              MegaClick Platform
-            </span>
+      {/* --- Footer --- */}
+      <footer className="border-t border-white/10 bg-[#03030a] py-12">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
+          <div className="flex items-center gap-2 mb-6 md:mb-0 opacity-50 hover:opacity-100 transition-opacity cursor-pointer">
+            <Zap className="w-5 h-5 text-white" />
+            <span className="font-bold text-sm tracking-widest uppercase">MegaClick V2.0</span>
           </div>
-          <p>
-            {t.footer_rights} {new Date().getFullYear()}
-          </p>
+          <p className="text-xs text-slate-600 font-mono">{t.footer} {new Date().getFullYear()}</p>
         </div>
       </footer>
+
     </div>
   );
 }
