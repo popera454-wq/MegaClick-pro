@@ -2,63 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: #03030a;
-    --foreground: #f8fafc;
-    --primary: #ec4899; /* Pink */
-    --secondary: #8b5cf6; /* Purple */
-    --accent: #06b6d4; /* Cyan */
+:root {
+  --background: #05050d;
+  --surface: #0b0b18;
+  --surface-2: #111124;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --pink: #ec4899;
+  --purple: #8b5cf6;
+  --cyan: #22d3ee;
+  --green: #34d399;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--background);
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(139, 92, 246, 0.16), transparent 30%),
+    radial-gradient(circle at 86% 20%, rgba(34, 211, 238, 0.12), transparent 28%),
+    radial-gradient(circle at 50% 85%, rgba(236, 72, 153, 0.11), transparent 32%),
+    var(--background);
+  color: var(--foreground);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(236, 72, 153, 0.28);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #05050d;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid #05050d;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #22d3ee, #8b5cf6 48%, #ec4899);
+}
+
+@layer components {
+  .container-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  body {
-    @apply bg-[var(--background)] text-[var(--foreground)] antialiased overflow-x-hidden;
-    /* Smooth scrolling behavior */
-    scroll-behavior: smooth;
+  .glass-card {
+    @apply border border-white/10 bg-white/[0.045] backdrop-blur-2xl;
+    box-shadow: 0 24px 90px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
-  /* Custom Cyberpunk Scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
+  .section-kicker {
+    @apply inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-bold text-cyan-200;
   }
-  ::-webkit-scrollbar-track {
-    background: #03030a;
+
+  .gradient-title {
+    @apply bg-gradient-to-l from-cyan-300 via-violet-400 to-pink-400 bg-clip-text text-transparent;
   }
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #8b5cf6, #ec4899);
-    border-radius: 10px;
+
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-l from-pink-500 via-violet-600 to-cyan-500 px-6 py-3.5 font-black text-white transition duration-300 hover:-translate-y-1 hover:brightness-110;
+    box-shadow: 0 16px 45px rgba(139, 92, 246, 0.35);
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #a78bfa, #f472b6);
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.045] px-6 py-3.5 font-bold text-white transition duration-300 hover:-translate-y-1 hover:bg-white/[0.08];
   }
 }
 
 @layer utilities {
-  /* Complex glowing text effect */
+  .grid-background {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, black, transparent 92%);
+  }
+
   .text-glow {
-    text-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+    text-shadow: 0 0 34px rgba(139, 92, 246, 0.45);
   }
-  
-  /* Glassmorphism panel */
-  .glass-panel {
-    @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+
+  .animate-float {
+    animation: float 7s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 9s ease-in-out 1.4s infinite;
+  }
+
+  .animate-shimmer {
+    background-size: 220% 100%;
+    animation: shimmer 3s linear infinite;
   }
 }
 
-/* Background floating blobs animation */
-@keyframes blob {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
 }
 
-.animate-blob {
-  animation: blob 10s infinite;
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-.animation-delay-4000 {
-  animation-delay: 4s;
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
